@@ -50,6 +50,12 @@ export default function RootLayout() {
           name="kid/[id]/insights"
           options={{ title: "Insights" }}
         />
+        <Stack.Screen
+          name="settings-categories"
+          options={{
+            title: "Manage Categories",
+          }}
+        />
       </Stack>
     </AppProvider>
   );
