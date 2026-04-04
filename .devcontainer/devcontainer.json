@@ -1,0 +1,35 @@
+{
+  "name": "Piggy Bank - React Native Expo",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "forwardPorts": [8081, 19000, 19001, 19002],
+  "portsAttributes": {
+    "8081": { "label": "Metro Bundler" },
+    "19000": { "label": "Expo DevTools" },
+    "19001": { "label": "Expo Packager" },
+    "19002": { "label": "Expo Web" }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "dsznajder.es7-react-js-snippets",
+        "msjsdiag.vscode-react-native"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  },
+  "remoteUser": "node",
+  "containerEnv": {
+    "EXPO_DEVTOOLS_LISTEN_ADDRESS": "0.0.0.0"
+  }
+}
