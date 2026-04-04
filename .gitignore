@@ -5,15 +5,26 @@ node_modules/
 .expo/
 dist/
 web-build/
+expo-env.d.ts
 
 # Native builds
 ios/
 android/
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
 
 # Environment
 .env
 .env.local
-.env.production
+.env*.local
 
 # IDE
 .vscode/*
@@ -26,6 +37,7 @@ android/
 # OS
 .DS_Store
 Thumbs.db
+*.pem
 
 # Debug
 npm-debug.*
