@@ -104,7 +104,7 @@ export default function ActivityScreen() {
 
       {transactions.length === 0 ? (
         <EmptyState
-          emoji="\u{1F4CB}"
+          emoji="📋"
           title="No activity yet"
           subtitle="Transactions will appear here"
         />

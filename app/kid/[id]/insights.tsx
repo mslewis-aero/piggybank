@@ -56,7 +56,7 @@ export default function InsightsScreen() {
         <InsightChart items={items} />
       ) : (
         <EmptyState
-          emoji={tab === "earning" ? "\u{1F4B0}" : "\u{1F6CD}\uFE0F"}
+          emoji={tab === "earning" ? "💰" : "🛍️"}
           title={`No ${tab === "earning" ? "earnings" : "spending"} recorded yet!`}
         />
       )}

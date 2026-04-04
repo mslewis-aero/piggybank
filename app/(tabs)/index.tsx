@@ -16,7 +16,7 @@ export default function HomeScreen() {
     return (
       <View style={styles.container}>
         <EmptyState
-          emoji="\u{1F437}"
+          emoji="🐷"
           title="Add your first piggy bank!"
           subtitle="Tap the + button to get started"
         />

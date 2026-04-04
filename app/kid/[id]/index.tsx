@@ -92,7 +92,7 @@ export default function KidDetailScreen() {
         )}
         ListEmptyComponent={
           <EmptyState
-            emoji="\u{1F4DD}"
+            emoji="📝"
             title="No transactions yet"
             subtitle="Add or remove money to get started"
           />

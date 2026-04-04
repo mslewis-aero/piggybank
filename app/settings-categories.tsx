@@ -34,7 +34,7 @@ export default function ManageCategoriesScreen() {
       payload: {
         name: newName.trim(),
         type,
-        emoji: newEmoji || (type === "earning" ? "\u{1F4B0}" : "\u{1F6D2}"),
+        emoji: newEmoji || (type === "earning" ? "💰" : "🛒"),
       },
     });
     setNewName("");
@@ -103,7 +103,7 @@ export default function ManageCategoriesScreen() {
                     style={styles.emojiInput}
                     value={newEmoji}
                     onChangeText={(t) => setNewEmoji(t.slice(0, 2))}
-                    placeholder="\u{1F600}"
+                    placeholder="😀"
                     placeholderTextColor={Colors.textLight}
                     textAlign="center"
                   />

@@ -31,24 +31,24 @@ export const FontSize = {
 } as const;
 
 export const Avatars = [
-  { id: "bear", emoji: "\u{1F43B}" },
-  { id: "bunny", emoji: "\u{1F430}" },
-  { id: "cat", emoji: "\u{1F431}" },
-  { id: "dog", emoji: "\u{1F436}" },
-  { id: "fox", emoji: "\u{1F98A}" },
-  { id: "owl", emoji: "\u{1F989}" },
-  { id: "penguin", emoji: "\u{1F427}" },
-  { id: "panda", emoji: "\u{1F43C}" },
-  { id: "rocket", emoji: "\u{1F680}" },
-  { id: "star", emoji: "\u2B50" },
-  { id: "rainbow", emoji: "\u{1F308}" },
-  { id: "unicorn", emoji: "\u{1F984}" },
-  { id: "dino", emoji: "\u{1F995}" },
-  { id: "robot", emoji: "\u{1F916}" },
-  { id: "butterfly", emoji: "\u{1F98B}" },
-  { id: "lion", emoji: "\u{1F981}" },
+  { id: "bear", emoji: "🐻" },
+  { id: "bunny", emoji: "🐰" },
+  { id: "cat", emoji: "🐱" },
+  { id: "dog", emoji: "🐶" },
+  { id: "fox", emoji: "🦊" },
+  { id: "owl", emoji: "🦉" },
+  { id: "penguin", emoji: "🐧" },
+  { id: "panda", emoji: "🐼" },
+  { id: "rocket", emoji: "🚀" },
+  { id: "star", emoji: "⭐" },
+  { id: "rainbow", emoji: "🌈" },
+  { id: "unicorn", emoji: "🦄" },
+  { id: "dino", emoji: "🦕" },
+  { id: "robot", emoji: "🤖" },
+  { id: "butterfly", emoji: "🦋" },
+  { id: "lion", emoji: "🦁" },
 ] as const;
 
 export const getAvatarEmoji = (avatarId: string): string => {
-  return Avatars.find((a) => a.id === avatarId)?.emoji ?? "\u{1F43B}";
+  return Avatars.find((a) => a.id === avatarId)?.emoji ?? "🐻";
 };
