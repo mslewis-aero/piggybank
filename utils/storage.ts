@@ -1,14 +1,32 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Crypto from "expo-crypto";
 import { AppState } from "../types";
 import { DEFAULT_STATE } from "./defaults";
 
 const STORAGE_KEY = "@piggybank_data";
 
+function migrateState(state: AppState): AppState {
+  const now = new Date().toISOString();
+  return {
+    ...state,
+    deviceId: state.deviceId || Crypto.randomUUID(),
+    kids: state.kids.map((k) => ({
+      ...k,
+      updatedAt: k.updatedAt || now,
+    })),
+    categories: state.categories.map((c) => ({
+      ...c,
+      updatedAt: c.updatedAt || now,
+    })),
+  };
+}
+
 export const loadState = async (): Promise<AppState> => {
   try {
     const json = await AsyncStorage.getItem(STORAGE_KEY);
     if (json) {
-      return JSON.parse(json) as AppState;
+      const parsed = JSON.parse(json) as AppState;
+      return migrateState(parsed);
     }
   } catch (error) {
     console.error("Failed to load state:", error);
