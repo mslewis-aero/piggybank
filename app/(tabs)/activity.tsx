@@ -8,10 +8,12 @@ import {
   StyleSheet,
 } from "react-native";
 import { useAppContext } from "../../context/AppContext";
+import { useTheme } from "../../context/ThemeContext";
 import { useAllTransactions } from "../../hooks/useTransactions";
+import { useActiveKids } from "../../hooks/useFiltered";
 import { TransactionRow } from "../../components/TransactionRow";
 import { EmptyState } from "../../components/EmptyState";
-import { Colors, FontSize, Spacing, getAvatarEmoji } from "../../constants/theme";
+import { ThemeColors, FontSize, Spacing, getAvatarEmoji } from "../../constants/theme";
 
 function formatDateHeader(dateStr: string): string {
   const date = new Date(dateStr);
@@ -36,8 +38,11 @@ interface DateSection {
 
 export default function ActivityScreen() {
   const { state } = useAppContext();
+  const kids = useActiveKids();
+  const { colors } = useTheme();
   const [kidFilter, setKidFilter] = useState<string | undefined>(undefined);
   const transactions = useAllTransactions(kidFilter);
+  const styles = makeStyles(colors);
 
   const sections = useMemo(() => {
     const groups: DateSection[] = [];
@@ -76,7 +81,7 @@ export default function ActivityScreen() {
             All Kids
           </Text>
         </TouchableOpacity>
-        {state.kids.map((kid) => (
+        {kids.map((kid) => (
           <TouchableOpacity
             key={kid.id}
             style={[
@@ -136,48 +141,49 @@ export default function ActivityScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  filterBar: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    gap: Spacing.sm,
-  },
-  filterChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: 20,
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  filterChipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  filterEmoji: {
-    fontSize: 16,
-    marginRight: Spacing.xs,
-  },
-  filterText: {
-    fontSize: FontSize.sm,
-    color: Colors.text,
-  },
-  filterTextActive: {
-    color: "#FFFFFF",
-    fontWeight: "600",
-  },
-  dateHeader: {
-    fontSize: FontSize.sm,
-    fontWeight: "700",
-    color: Colors.textSecondary,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    backgroundColor: Colors.background,
-  },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    filterBar: {
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      gap: Spacing.sm,
+    },
+    filterChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderRadius: 20,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    filterChipActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    filterEmoji: {
+      fontSize: 16,
+      marginRight: Spacing.xs,
+    },
+    filterText: {
+      fontSize: FontSize.sm,
+      color: colors.text,
+    },
+    filterTextActive: {
+      color: "#FFFFFF",
+      fontWeight: "600",
+    },
+    dateHeader: {
+      fontSize: FontSize.sm,
+      fontWeight: "700",
+      color: colors.textSecondary,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      backgroundColor: colors.background,
+    },
+  });

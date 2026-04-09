@@ -5,7 +5,7 @@ export function useKid(kidId: string) {
   const { state } = useAppContext();
 
   const kid = useMemo(
-    () => state.kids.find((k) => k.id === kidId),
+    () => state.kids.find((k) => k.id === kidId && !k.deletedAt),
     [state.kids, kidId]
   );
 

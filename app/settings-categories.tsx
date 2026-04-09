@@ -11,20 +11,24 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppContext } from "../context/AppContext";
+import { useTheme } from "../context/ThemeContext";
+import { useActiveCategories } from "../hooks/useFiltered";
 import { UNDELETABLE_CATEGORY_IDS } from "../utils/defaults";
-import { Colors, FontSize, Spacing } from "../constants/theme";
+import { ThemeColors, FontSize, Spacing } from "../constants/theme";
 import { CategoryType } from "../types";
 
 export default function ManageCategoriesScreen() {
   const { state, dispatch } = useAppContext();
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ type: string }>();
   const type = (params.type ?? "earning") as CategoryType;
+  const styles = makeStyles(colors);
 
   const [newName, setNewName] = useState("");
   const [newEmoji, setNewEmoji] = useState("");
   const [showForm, setShowForm] = useState(false);
 
-  const categories = state.categories.filter((c) => c.type === type);
+  const categories = useActiveCategories(type);
   const title = type === "earning" ? "Earning Categories" : "Spending Categories";
 
   const handleAdd = () => {
@@ -87,7 +91,7 @@ export default function ManageCategoriesScreen() {
                   <Ionicons
                     name="trash-outline"
                     size={20}
-                    color={Colors.withdrawal}
+                    color={colors.withdrawal}
                   />
                 </TouchableOpacity>
               )}
@@ -104,7 +108,7 @@ export default function ManageCategoriesScreen() {
                     value={newEmoji}
                     onChangeText={(t) => setNewEmoji(t.slice(0, 2))}
                     placeholder="😀"
-                    placeholderTextColor={Colors.textLight}
+                    placeholderTextColor={colors.textLight}
                     textAlign="center"
                   />
                   <TextInput
@@ -112,7 +116,7 @@ export default function ManageCategoriesScreen() {
                     value={newName}
                     onChangeText={(t) => setNewName(t.slice(0, 30))}
                     placeholder="Category name"
-                    placeholderTextColor={Colors.textLight}
+                    placeholderTextColor={colors.textLight}
                     autoFocus
                   />
                 </View>
@@ -146,7 +150,7 @@ export default function ManageCategoriesScreen() {
                 <Ionicons
                   name="add-circle-outline"
                   size={22}
-                  color={Colors.primary}
+                  color={colors.primary}
                 />
                 <Text style={styles.addCategoryText}>Add Category</Text>
               </TouchableOpacity>
@@ -158,105 +162,106 @@ export default function ManageCategoriesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    padding: Spacing.md,
-  },
-  title: {
-    fontSize: FontSize.xl,
-    fontWeight: "bold",
-    color: Colors.text,
-    marginBottom: Spacing.lg,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.card,
-    padding: Spacing.md,
-    borderRadius: 12,
-    marginBottom: Spacing.sm,
-  },
-  emoji: {
-    fontSize: 22,
-    marginRight: Spacing.sm,
-  },
-  name: {
-    fontSize: FontSize.md,
-    color: Colors.text,
-    flex: 1,
-  },
-  locked: {
-    fontSize: FontSize.xs,
-    color: Colors.textLight,
-    fontStyle: "italic",
-  },
-  form: {
-    backgroundColor: Colors.card,
-    borderRadius: 12,
-    padding: Spacing.md,
-    marginTop: Spacing.sm,
-  },
-  formRow: {
-    flexDirection: "row",
-    gap: Spacing.sm,
-  },
-  emojiInput: {
-    width: 50,
-    backgroundColor: Colors.background,
-    borderRadius: 8,
-    padding: Spacing.sm,
-    fontSize: 22,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  nameInput: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    borderRadius: 8,
-    padding: Spacing.sm,
-    fontSize: FontSize.md,
-    color: Colors.text,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  formButtons: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: Spacing.md,
-    marginTop: Spacing.md,
-    alignItems: "center",
-  },
-  cancelText: {
-    fontSize: FontSize.md,
-    color: Colors.textSecondary,
-  },
-  addBtn: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    borderRadius: 8,
-  },
-  addBtnDisabled: {
-    opacity: 0.5,
-  },
-  addBtnText: {
-    color: "#FFFFFF",
-    fontSize: FontSize.md,
-    fontWeight: "600",
-  },
-  addCategory: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: Spacing.md,
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
-  },
-  addCategoryText: {
-    fontSize: FontSize.md,
-    color: Colors.primary,
-    fontWeight: "600",
-  },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      padding: Spacing.md,
+    },
+    title: {
+      fontSize: FontSize.xl,
+      fontWeight: "bold",
+      color: colors.text,
+      marginBottom: Spacing.lg,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.card,
+      padding: Spacing.md,
+      borderRadius: 12,
+      marginBottom: Spacing.sm,
+    },
+    emoji: {
+      fontSize: 22,
+      marginRight: Spacing.sm,
+    },
+    name: {
+      fontSize: FontSize.md,
+      color: colors.text,
+      flex: 1,
+    },
+    locked: {
+      fontSize: FontSize.xs,
+      color: colors.textLight,
+      fontStyle: "italic",
+    },
+    form: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: Spacing.md,
+      marginTop: Spacing.sm,
+    },
+    formRow: {
+      flexDirection: "row",
+      gap: Spacing.sm,
+    },
+    emojiInput: {
+      width: 50,
+      backgroundColor: colors.background,
+      borderRadius: 8,
+      padding: Spacing.sm,
+      fontSize: 22,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    nameInput: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderRadius: 8,
+      padding: Spacing.sm,
+      fontSize: FontSize.md,
+      color: colors.text,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    formButtons: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      gap: Spacing.md,
+      marginTop: Spacing.md,
+      alignItems: "center",
+    },
+    cancelText: {
+      fontSize: FontSize.md,
+      color: colors.textSecondary,
+    },
+    addBtn: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: Spacing.lg,
+      paddingVertical: Spacing.sm,
+      borderRadius: 8,
+    },
+    addBtnDisabled: {
+      opacity: 0.5,
+    },
+    addBtnText: {
+      color: "#FFFFFF",
+      fontSize: FontSize.md,
+      fontWeight: "600",
+    },
+    addCategory: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: Spacing.md,
+      gap: Spacing.sm,
+      marginTop: Spacing.sm,
+    },
+    addCategoryText: {
+      fontSize: FontSize.md,
+      color: colors.primary,
+      fontWeight: "600",
+    },
+  });
