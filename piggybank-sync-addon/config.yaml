@@ -1,0 +1,17 @@
+name: "Piggy Bank Sync"
+description: "Local network sync server for the Piggy Bank family app"
+version: "1.0.0"
+slug: "piggybank-sync"
+arch:
+  - aarch64
+  - armv7
+  - amd64
+ports:
+  3456/tcp: 3456
+ports_description:
+  3456/tcp: "Sync server"
+map:
+  - data:rw
+startup: application
+boot: auto
+host_network: true
