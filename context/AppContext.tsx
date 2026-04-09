@@ -4,6 +4,8 @@ import React, {
   useReducer,
   useEffect,
   useState,
+  useRef,
+  useCallback,
   ReactNode,
 } from "react";
 import * as Crypto from "expo-crypto";
@@ -11,6 +13,7 @@ import { AppState } from "../types";
 import { AppAction } from "./actions";
 import { DEFAULT_STATE, UNDELETABLE_CATEGORY_IDS } from "../utils/defaults";
 import { loadState, saveState } from "../utils/storage";
+import { performSync, SyncStatus } from "../utils/sync";
 
 function appReducer(state: AppState, action: AppAction): AppState {
   const now = new Date().toISOString();
@@ -130,18 +133,53 @@ interface AppContextValue {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
   isLoaded: boolean;
+  syncStatus: SyncStatus;
 }
 
 const AppContext = createContext<AppContextValue>({
   state: DEFAULT_STATE,
   dispatch: () => {},
   isLoaded: false,
+  syncStatus: "idle",
 });
+
+const SYNC_DEBOUNCE_MS = 500;
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, DEFAULT_STATE);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSyncingRef = useRef(false);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
+  const doSync = useCallback(async () => {
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    setSyncStatus("syncing");
+
+    try {
+      const { mergedState, status } = await performSync(stateRef.current);
+      setSyncStatus(status);
+      if (mergedState) {
+        dispatch({ type: "SYNC_STATE", payload: mergedState });
+      }
+    } catch {
+      setSyncStatus("offline");
+    } finally {
+      isSyncingRef.current = false;
+    }
+  }, []);
+
+  const debouncedSync = useCallback(() => {
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+    syncTimeoutRef.current = setTimeout(doSync, SYNC_DEBOUNCE_MS);
+  }, [doSync]);
+
+  // Load state and initial sync
   useEffect(() => {
     loadState().then((saved) => {
       dispatch({ type: "LOAD_STATE", payload: saved });
@@ -149,14 +187,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Sync on first load
   useEffect(() => {
     if (isLoaded) {
-      saveState(state);
+      doSync();
     }
-  }, [state, isLoaded]);
+  }, [isLoaded, doSync]);
+
+  // Save and sync on state changes
+  const prevStateRef = useRef(state);
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (state === prevStateRef.current) return;
+    prevStateRef.current = state;
+
+    saveState(state);
+    debouncedSync();
+  }, [state, isLoaded, debouncedSync]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, isLoaded }}>
+    <AppContext.Provider value={{ state, dispatch, isLoaded, syncStatus }}>
       {children}
     </AppContext.Provider>
   );
