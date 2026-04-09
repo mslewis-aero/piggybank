@@ -13,8 +13,11 @@ import { DEFAULT_STATE, UNDELETABLE_CATEGORY_IDS } from "../utils/defaults";
 import { loadState, saveState } from "../utils/storage";
 
 function appReducer(state: AppState, action: AppAction): AppState {
+  const now = new Date().toISOString();
+
   switch (action.type) {
     case "LOAD_STATE":
+    case "SYNC_STATE":
       return action.payload;
 
     case "ADD_KID":
@@ -24,7 +27,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
           ...state.kids,
           {
             ...action.payload,
-            createdAt: new Date().toISOString(),
+            createdAt: now,
+            updatedAt: now,
           },
         ],
       };
@@ -34,7 +38,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         kids: state.kids.map((k) =>
           k.id === action.payload.id
-            ? { ...k, name: action.payload.name, age: action.payload.age, avatarId: action.payload.avatarId }
+            ? { ...k, name: action.payload.name, age: action.payload.age, avatarId: action.payload.avatarId, updatedAt: now }
             : k
         ),
       };
@@ -42,9 +46,20 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case "DELETE_KID":
       return {
         ...state,
-        kids: state.kids.filter((k) => k.id !== action.payload.id),
-        transactions: state.transactions.filter(
-          (t) => t.kidId !== action.payload.id
+        kids: state.kids.map((k) =>
+          k.id === action.payload.id
+            ? { ...k, deletedAt: now, updatedAt: now }
+            : k
+        ),
+      };
+
+    case "RESTORE_KID":
+      return {
+        ...state,
+        kids: state.kids.map((k) =>
+          k.id === action.payload.id
+            ? { ...k, deletedAt: undefined, updatedAt: now }
+            : k
         ),
       };
 
@@ -56,7 +71,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
           {
             ...action.payload,
             id: Crypto.randomUUID(),
-            createdAt: new Date().toISOString(),
+            createdAt: now,
           },
         ],
       };
@@ -69,6 +84,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
           {
             ...action.payload,
             id: Crypto.randomUUID(),
+            updatedAt: now,
           },
         ],
       };
@@ -77,7 +93,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         categories: state.categories.map((c) =>
-          c.id === action.payload.id ? action.payload : c
+          c.id === action.payload.id ? { ...action.payload, updatedAt: now } : c
         ),
       };
 
@@ -85,22 +101,25 @@ function appReducer(state: AppState, action: AppAction): AppState {
       if (UNDELETABLE_CATEGORY_IDS.includes(action.payload.id)) {
         return state;
       }
-      const cat = state.categories.find((c) => c.id === action.payload.id);
-      if (!cat) return state;
-      const otherCatId =
-        cat.type === "earning" ? "earn-other" : "spend-other";
       return {
         ...state,
-        categories: state.categories.filter(
-          (c) => c.id !== action.payload.id
-        ),
-        transactions: state.transactions.map((t) =>
-          t.categoryId === action.payload.id
-            ? { ...t, categoryId: otherCatId }
-            : t
+        categories: state.categories.map((c) =>
+          c.id === action.payload.id
+            ? { ...c, deletedAt: now, updatedAt: now }
+            : c
         ),
       };
     }
+
+    case "RESTORE_CATEGORY":
+      return {
+        ...state,
+        categories: state.categories.map((c) =>
+          c.id === action.payload.id
+            ? { ...c, deletedAt: undefined, updatedAt: now }
+            : c
+        ),
+      };
 
     default:
       return state;
