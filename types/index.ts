@@ -5,6 +5,8 @@ export interface Category {
   name: string;
   type: CategoryType;
   emoji?: string;
+  updatedAt: string;
+  deletedAt?: string;
 }
 
 export type TransactionType = "deposit" | "withdrawal";
@@ -25,10 +27,13 @@ export interface Kid {
   age: number;
   avatarId: string;
   createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
 }
 
 export interface AppState {
   kids: Kid[];
   categories: Category[];
   transactions: Transaction[];
+  deviceId: string;
 }
