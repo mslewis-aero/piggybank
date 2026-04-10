@@ -134,12 +134,14 @@ interface AppContextValue {
   dispatch: React.Dispatch<AppAction>;
   isLoaded: boolean;
   syncStatus: SyncStatus;
+  triggerSync: () => void;
 }
 
 const AppContext = createContext<AppContextValue>({
   state: DEFAULT_STATE,
   dispatch: () => {},
   isLoaded: false,
+  triggerSync: () => {},
   syncStatus: "idle",
 });
 
@@ -206,7 +208,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [state, isLoaded, debouncedSync]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, isLoaded, syncStatus }}>
+    <AppContext.Provider value={{ state, dispatch, isLoaded, syncStatus, triggerSync: doSync }}>
       {children}
     </AppContext.Provider>
   );

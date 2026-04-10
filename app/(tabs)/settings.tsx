@@ -1,9 +1,10 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useAppContext } from "../../context/AppContext";
+import { getManualAddress, setManualAddress } from "../../utils/discovery";
 import { ThemeColors, ThemeMode, FontSize, Spacing } from "../../constants/theme";
 
 const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -22,9 +23,26 @@ const SYNC_DISPLAY: Record<string, { label: string; icon: keyof typeof Ionicons.
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors, themeMode, setThemeMode } = useTheme();
-  const { syncStatus } = useAppContext();
+  const { syncStatus, triggerSync } = useAppContext();
   const styles = makeStyles(colors);
   const sync = SYNC_DISPLAY[syncStatus] || SYNC_DISPLAY.idle;
+
+  const [serverAddr, setServerAddr] = useState("");
+  const [addrLoaded, setAddrLoaded] = useState(false);
+
+  useEffect(() => {
+    getManualAddress().then((addr) => {
+      setServerAddr(addr);
+      setAddrLoaded(true);
+    });
+  }, []);
+
+  const handleSaveAddress = () => {
+    Keyboard.dismiss();
+    setManualAddress(serverAddr).then(() => {
+      triggerSync();
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -33,6 +51,24 @@ export default function SettingsScreen() {
       <View style={styles.row}>
         <Ionicons name={sync.icon} size={22} color={sync.color(colors)} />
         <Text style={styles.rowText}>{sync.label}</Text>
+      </View>
+
+      <View style={styles.serverRow}>
+        <TextInput
+          style={styles.serverInput}
+          value={serverAddr}
+          onChangeText={setServerAddr}
+          placeholder="Server IP (e.g. 192.168.1.100)"
+          placeholderTextColor={colors.textLight}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+          returnKeyType="done"
+          onSubmitEditing={handleSaveAddress}
+        />
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAddress}>
+          <Text style={styles.saveBtnText}>Save</Text>
+        </TouchableOpacity>
       </View>
 
       <Text style={[styles.sectionTitle, { marginTop: Spacing.xl }]}>
@@ -133,6 +169,33 @@ const makeStyles = (colors: ThemeColors) =>
       marginBottom: Spacing.sm,
       marginTop: Spacing.md,
       paddingHorizontal: Spacing.sm,
+    },
+    serverRow: {
+      flexDirection: "row",
+      gap: Spacing.sm,
+      marginBottom: Spacing.sm,
+    },
+    serverInput: {
+      flex: 1,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: Spacing.md,
+      fontSize: FontSize.md,
+      color: colors.text,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    saveBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      paddingHorizontal: Spacing.lg,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    saveBtnText: {
+      color: "#FFFFFF",
+      fontSize: FontSize.md,
+      fontWeight: "600",
     },
     themeRow: {
       flexDirection: "row",

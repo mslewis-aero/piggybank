@@ -2,9 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Zeroconf from "react-native-zeroconf";
 
 const CACHE_KEY = "@piggybank_server";
+const MANUAL_KEY = "@piggybank_server_manual";
 const DISCOVERY_TIMEOUT = 3000;
 
-interface ServerAddress {
+export interface ServerAddress {
   host: string;
   port: number;
 }
@@ -74,15 +75,48 @@ function discoverViaMdns(): Promise<ServerAddress | null> {
   });
 }
 
+export async function getManualAddress(): Promise<string> {
+  try {
+    return (await AsyncStorage.getItem(MANUAL_KEY)) || "";
+  } catch {
+    return "";
+  }
+}
+
+export async function setManualAddress(address: string): Promise<void> {
+  try {
+    await AsyncStorage.setItem(MANUAL_KEY, address.trim());
+    cachedAddress = null;
+  } catch {}
+}
+
+function parseAddress(input: string): ServerAddress | null {
+  const trimmed = input.trim().replace(/^https?:\/\//, "");
+  if (!trimmed) return null;
+  const [host, portStr] = trimmed.split(":");
+  return { host, port: portStr ? parseInt(portStr, 10) : 3456 };
+}
+
 export async function discoverServer(): Promise<ServerAddress | null> {
+  // Priority 1: manually configured address
+  const manual = await getManualAddress();
+  if (manual) {
+    const addr = parseAddress(manual);
+    if (addr && (await checkHealth(addr))) {
+      cachedAddress = addr;
+      return addr;
+    }
+  }
+
+  // Priority 2: cached address from previous discovery
   if (!cachedAddress) {
     cachedAddress = await loadCachedAddress();
   }
-
   if (cachedAddress && (await checkHealth(cachedAddress))) {
     return cachedAddress;
   }
 
+  // Priority 3: mDNS discovery
   const discovered = await discoverViaMdns();
   if (discovered && (await checkHealth(discovered))) {
     cachedAddress = discovered;
