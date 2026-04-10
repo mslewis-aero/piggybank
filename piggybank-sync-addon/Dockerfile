@@ -1,8 +1,8 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-# Install Node.js 20
-RUN apk add --no-cache nodejs npm
+# Install Node.js and native build tools (needed for better-sqlite3)
+RUN apk add --no-cache nodejs npm python3 make g++
 
 WORKDIR /app
 
@@ -15,8 +15,8 @@ COPY server/tsconfig.json ./
 COPY server/src/ ./src/
 RUN npx tsc
 
-# Remove devDependencies after build
-RUN npm prune --omit=dev
+# Remove devDependencies and build tools to slim the image
+RUN npm prune --omit=dev && apk del python3 make g++
 
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
